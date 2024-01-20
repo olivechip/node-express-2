@@ -8,7 +8,8 @@ class User {
 
 /** Register user with data. Returns new user data. */
 
-  static async register({username, password, first_name, last_name, email, phone}) {
+  static async register({username, password, first_name, last_name, email, phone, admin=false}){
+    console.log(admin)
     const duplicateCheck = await db.query(
       `SELECT username 
         FROM users 
@@ -27,16 +28,17 @@ class User {
 
     const result = await db.query(
       `INSERT INTO users 
-          (username, password, first_name, last_name, email, phone) 
-        VALUES ($1, $2, $3, $4, $5, $6) 
-        RETURNING username, password, first_name, last_name, email, phone`,
+          (username, password, first_name, last_name, email, phone, admin) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        RETURNING username, password, first_name, last_name, email, phone, admin`,
       [
         username,
         hashedPassword,
         first_name,
         last_name,
         email,
-        phone
+        phone,
+        admin
       ]
     );
 
@@ -75,7 +77,7 @@ class User {
 
   /** Returns list of user info:
    *
-   * [{username, first_name, last_name, email, phone}, ...]
+   * [{username, first_name, last_name, email, phone, admin}, ...]
    *
    * */
 
@@ -85,14 +87,15 @@ class User {
                 first_name,
                 last_name,
                 email,
-                phone
+                phone,
+                admin
             FROM users 
             ORDER BY username`
     );
     return result.rows;
   }
 
-  /** Returns user info: {username, first_name, last_name, email, phone}
+  /** Returns user info: {username, first_name, last_name, email, phone, admin}
    *
    * If user cannot be found, should raise a 404.
    *
@@ -104,7 +107,8 @@ class User {
                 first_name,
                 last_name,
                 email,
-                phone
+                phone,
+                admin
          FROM users
          WHERE username = $1`,
       [username]
