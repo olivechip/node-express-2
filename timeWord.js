@@ -165,4 +165,4 @@ function timeWord(time){
     return timeWord.join(" ");
 }
 
-module.exports = { timeWord };
+module.exports = timeWord;

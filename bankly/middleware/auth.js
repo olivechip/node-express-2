@@ -49,9 +49,15 @@ function authUser(req, res, next) {
     const token = req.body._token || req.query._token;
     if (token && typeof token === 'string' && token.trim() !== '') {
       let payload = jwt.decode(token);
-      console.log(payload)
-      req.curr_username = payload.username;
-      req.curr_admin = payload.admin;
+
+      // fix for bug #6 - error handling for payload token
+      if (payload){
+        req.curr_username = payload.username;
+        req.curr_admin = payload.admin;
+      } else {
+        throw new Error('Invalid payload token');
+      }
+      // end bug
     }
     return next();
   } catch (err) {
