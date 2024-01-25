@@ -97,7 +97,16 @@ describe("GET /users", function() {
     const response = await request(app).get("/users");
     expect(response.statusCode).toBe(401);
   });
-
+  // tests bug 6
+  test("should return error if token is invalid", async function(){
+    const response = await request(app)
+      .get("/users")
+      .send({ _token: "bad_token" });
+    expect(response.statusCode).toBe(401);
+    console.log(response);
+    expect(response.body.message).toEqual("Invalid payload token");
+  });
+  // end bug 6
   test("should list all users", async function() {
     const response = await request(app)
       .get("/users")
@@ -117,13 +126,15 @@ describe("GET /users/[username]", function() {
     const response = await request(app)
       .get("/users/u1")
       .send({ _token: tokens.u1 });
+    console.log(response)
     expect(response.statusCode).toBe(200);
     expect(response.body.user).toEqual({
       username: "u1",
       first_name: "fn1",
       last_name: "ln1",
       email: "email1",
-      phone: "phone1"
+      phone: "phone1",
+      admin: false
     });
   });
 });
